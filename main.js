@@ -1,10 +1,52 @@
 const interface = require("./api/interface");
-const system = require("./api/system");
+const { initiateRequest, pollForRequestResults } = require("./api/utils");
+const { captcha } = require("./config.json");
+const { sendEmail } = require("./api/mail");
+const { logger } = require("./api/logger");
+const {
+  getCaptchaSelector,
+  resolveCaptcha,
+  checkResult,
+} = require("./api/custom/polska");
+
+async function getCaptchaImageinBase64(browser, url) {
+  const page = await browser.newPage();
+  await page.goto(url);
+  const imageInBase64 = await page.screenshot({
+    encoding: "base64",
+    omitBackground: true,
+  });
+  page.close();
+  return imageInBase64;
+}
+
+async function mainProcess() {
+  try {
+    await interface.init();
+    await interface.visitPage(captcha.site);
+    const catchaUrl = await getCaptchaSelector(interface);
+
+    logger.debug("We are translating the captcha image to base64");
+    const base64Captcha = await getCaptchaImageinBase64(
+      interface.browser,
+      catchaUrl
+    );
+    const requestId = await initiateRequest(captcha.key, base64Captcha);
+    logger.log("The captcha that we sent has the following ID:", requestId);
+    const response = await pollForRequestResults(captcha.key, requestId);
+    logger.log("Captcha decoded:", response);
+    await resolveCaptcha(interface, response);
+    const result = await checkResult(interface);
+    if (result) {
+      logger.debug("We are sending the email to notify you!");
+      await sendEmail();
+    }
+  } catch (err) {
+    logger.log(`Error: ${err.message}`);
+  }
+}
 
 (async () => {
-  await interface.init();
-  await interface.visitPage("https://sunilsandhu.com");
-  let links = await interface.querySelectorAllAttributes("a", "href");
-  console.log(links);
-  await system.saveFile(links);
+  await mainProcess();
+  process.exit(1);
 })();
