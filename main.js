@@ -1,4 +1,4 @@
-const interface = require("./api/interface");
+const { init } = require("./api/interface");
 const {
   initiateRequest,
   pollForRequestResults,
@@ -29,8 +29,8 @@ async function mainProcess() {
   const RETRY_DELAY_IN_MIN = 10;
   const MIN_IN_MILISECONDS = 60000;
   while (notFound) {
+    const interface = await init();
     try {
-      await interface.init();
       await interface.visitPage(captcha.site);
       const catchaUrl = await getCaptchaSelector(interface);
 
@@ -55,8 +55,9 @@ async function mainProcess() {
     } catch (err) {
       logger.error(`Error: ${err.message}`);
     }
+    interface.close();
     logger.info(`Going to sleep for ${RETRY_DELAY_IN_MIN} minutes!`);
-    sleep(RETRY_DELAY_IN_MIN * MIN_IN_MILISECONDS);
+    await sleep(RETRY_DELAY_IN_MIN * MIN_IN_MILISECONDS);
   }
 }
 
