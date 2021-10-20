@@ -27,11 +27,12 @@ async function getCaptchaImageinBase64(browser, url) {
 
 async function mainProcess() {
   let notFound = true;
+  let interface;
   const RETRY_DELAY_IN_MIN = 10;
   const MIN_IN_MILISECONDS = 60000;
   while (notFound) {
     try {
-      const interface = await init();
+      interface = await init();
       await interface.visitPage(captcha.site);
       const catchaUrl = await getCaptchaSelector(interface);
 
@@ -56,7 +57,7 @@ async function mainProcess() {
     } catch (err) {
       handleErrors(err);
     }
-    interface.close();
+    if (interface) interface.close();
     logger.info(`Going to sleep for ${RETRY_DELAY_IN_MIN} minutes!`);
     await sleep(RETRY_DELAY_IN_MIN * MIN_IN_MILISECONDS);
   }
