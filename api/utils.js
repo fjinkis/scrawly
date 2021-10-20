@@ -36,14 +36,14 @@ async function pollForRequestResults(
         method: "GET",
         url: `http://2captcha.com/res.php?key=${apiKey}&action=get&id=${requestId}&json=1`,
       });
-      logger.notice(`2captcha returned us: ${text}`);
+      logger.info(`2captcha returned us: ${text}`);
       if (text.includes("NOT_READY")) {
         throw new Error(text);
       }
       notFound = false;
     } catch {
       currentRetry += NEXT_ATTEMPT;
-      logger.notice(
+      logger.info(
         `(${currentRetry}/${retries}) API didn't resolve de CAPTCHA yet. Retrying...`
       );
       await sleep(delay);
