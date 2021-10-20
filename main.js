@@ -26,23 +26,23 @@ async function mainProcess() {
     await interface.visitPage(captcha.site);
     const catchaUrl = await getCaptchaSelector(interface);
 
-    logger.debug("We are translating the captcha image to base64");
+    logger.info("We are translating the captcha image to base64");
     const base64Captcha = await getCaptchaImageinBase64(
       interface.browser,
       catchaUrl
     );
     const requestId = await initiateRequest(captcha.key, base64Captcha);
-    logger.log("The captcha that we sent has the following ID:", requestId);
+    logger.info(`The captcha that we sent has the following ID: ${requestId}`);
     const response = await pollForRequestResults(captcha.key, requestId);
-    logger.log("Captcha decoded:", response);
+    logger.info(`Captcha decoded: ${response}`);
     await resolveCaptcha(interface, response);
     const result = await checkResult(interface);
     if (result) {
-      logger.debug("We are sending the email to notify you!");
+      logger.info("We are sending the email to notify you!");
       await sendEmail();
     }
   } catch (err) {
-    logger.log(`Error: ${err.message}`);
+    logger.error(`Error: ${err.message}`);
   }
 }
 

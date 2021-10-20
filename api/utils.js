@@ -1,4 +1,5 @@
 const axios = require("axios");
+const { logger } = require("./logger");
 
 async function sendRequest(payload) {
   const { data, status } = await axios(payload);
@@ -30,14 +31,14 @@ async function pollForRequestResults(
         method: "GET",
         url: `http://2captcha.com/res.php?key=${apiKey}&action=get&id=${requestId}&json=1`,
       });
-      console.debug("2captcha returned us:", text);
+      logger.info(`2captcha returned us: ${text}`);
       if (text.includes("NOT_READY")) {
         throw new Error(text);
       }
       notFound = false;
     } catch {
       currentRetry += NEXT_ATTEMPT;
-      console.log(
+      logger.info(
         `(${currentRetry}/${retries}) API didn't resolve de CAPTCHA yet. Retrying...`
       );
       await sleep(delay);

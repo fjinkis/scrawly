@@ -16,7 +16,7 @@ const interface = {
       this.page = await this.browser.newPage();
       await this.page.setViewport({ width: 1279, height: 768 });
     } catch (err) {
-      console.log(err);
+      logger.info(err);
     }
   },
   async visitPage(url) {
@@ -44,7 +44,7 @@ const interface = {
         attribute
       );
     } catch (error) {
-      console.log(error);
+      logger.info(error);
     }
   },
 
@@ -65,7 +65,7 @@ const interface = {
         attribute
       );
     } catch (error) {
-      console.log(error);
+      logger.info(error);
     }
   },
 
@@ -81,7 +81,7 @@ const interface = {
     try {
       return await this.page.type(selector, input);
     } catch (error) {
-      console.log(error);
+      logger.info(error);
     }
   },
 
@@ -96,7 +96,7 @@ const interface = {
     try {
       return await this.page.click(selector);
     } catch (error) {
-      console.log(error);
+      logger.info(error);
     }
   },
 
@@ -110,7 +110,7 @@ const interface = {
     try {
       return await this.page.evaluate(data);
     } catch (error) {
-      console.log(error);
+      logger.info(error);
     }
   },
 };

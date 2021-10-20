@@ -28,3 +28,4 @@ yarn-error.log*
 # personal logic
 config.json
 **/custom
+**/log.txt
