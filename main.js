@@ -11,6 +11,7 @@ const {
   getCaptchaSelector,
   resolveCaptcha,
   checkResult,
+  handleErrors,
 } = require("./api/custom/polska");
 
 async function getCaptchaImageinBase64(browser, url) {
@@ -29,31 +30,31 @@ async function mainProcess() {
   const RETRY_DELAY_IN_MIN = 10;
   const MIN_IN_MILISECONDS = 60000;
   while (notFound) {
-    const interface = await init();
     try {
+      const interface = await init();
       await interface.visitPage(captcha.site);
       const catchaUrl = await getCaptchaSelector(interface);
 
-      logger.info("We are translating the captcha image to base64");
+      logger.notice("We are translating the captcha image to base64");
       const base64Captcha = await getCaptchaImageinBase64(
         interface.browser,
         catchaUrl
       );
       const requestId = await initiateRequest(captcha.key, base64Captcha);
-      logger.info(
+      logger.notice(
         `The captcha that we sent has the following ID: ${requestId}`
       );
       const response = await pollForRequestResults(captcha.key, requestId);
-      logger.info(`Captcha decoded: ${response}`);
+      logger.notice(`Captcha decoded: ${response}`);
       await resolveCaptcha(interface, response);
       const result = await checkResult(interface);
       if (result) {
-        logger.info("We are sending the email to notify you!");
+        logger.notice("We are sending the email to notify you!");
         notFound = false;
         await sendEmail();
       }
     } catch (err) {
-      logger.error(`Error: ${err.message}`);
+      handleErrors(err);
     }
     interface.close();
     logger.info(`Going to sleep for ${RETRY_DELAY_IN_MIN} minutes!`);

@@ -1,7 +1,9 @@
 const winston = require("winston");
 
+const ONE_MB = 1000000;
+const MAX_NUM_FILES = 50;
 const logger = winston.createLogger({
-  level: "info",
+  level: "debug",
   format: winston.format.combine(
     winston.format.timestamp({
       format: "YYYY-MM-DD HH:mm:ss",
@@ -10,7 +12,13 @@ const logger = winston.createLogger({
     winston.format.splat(),
     winston.format.json()
   ),
-  transports: [new winston.transports.File({ filename: "./logs/info.log" })],
+  transports: [
+    new winston.transports.File({
+      filename: "./logs/debug.log",
+      maxsize: ONE_MB,
+      maxFiles: MAX_NUM_FILES,
+    }),
+  ],
 });
 
 module.exports = { logger };
