@@ -27,18 +27,18 @@ async function getCaptchaImageinBase64(browser, url) {
 
 async function mainProcess() {
   let notFound = true;
-  let interface;
+  let interfaceHandler;
   const RETRY_DELAY_IN_MIN = 10;
   const MIN_IN_MILISECONDS = 60000;
   while (notFound) {
     try {
-      interface = await init();
-      await interface.visitPage(captcha.site);
-      const catchaUrl = await getCaptchaSelector(interface);
+      interfaceHandler = await init();
+      await interfaceHandler.visitPage(captcha.site);
+      const catchaUrl = await getCaptchaSelector(interfaceHandler);
 
       logger.notice("We are translating the captcha image to base64");
       const base64Captcha = await getCaptchaImageinBase64(
-        interface.browser,
+        interfaceHandler.browser,
         catchaUrl
       );
       const requestId = await initiateRequest(captcha.key, base64Captcha);
@@ -47,8 +47,8 @@ async function mainProcess() {
       );
       const response = await pollForRequestResults(captcha.key, requestId);
       logger.notice(`Captcha decoded: ${response}`);
-      await resolveCaptcha(interface, response);
-      const result = await checkResult(interface);
+      await resolveCaptcha(interfaceHandler, response);
+      const result = await checkResult(interfaceHandler);
       if (result) {
         logger.notice("We are sending the email to notify you!");
         notFound = false;
@@ -57,7 +57,7 @@ async function mainProcess() {
     } catch (err) {
       handleErrors(err);
     }
-    if (interface) interface.close();
+    if (interfaceHandler) interfaceHandler.close();
     logger.info(`Going to sleep for ${RETRY_DELAY_IN_MIN} minutes!`);
     await sleep(RETRY_DELAY_IN_MIN * MIN_IN_MILISECONDS);
   }
