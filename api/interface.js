@@ -1,4 +1,5 @@
 const puppeteer = require("puppeteer");
+const { logger } = require("./logger");
 
 const interface = {
   browser: null,

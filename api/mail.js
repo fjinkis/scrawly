@@ -1,4 +1,5 @@
 const mailgun = require("mailgun-js");
+const { logger } = require("./logger");
 const { mail } = require("./../config.json");
 
 async function sendEmail() {
