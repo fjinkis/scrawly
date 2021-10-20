@@ -5,7 +5,7 @@ const { mail } = require("./../config.json");
 async function sendEmail() {
   const mg = mailgun({ apiKey: mail.key, domain: mail.domain });
   const body = await mg.messages().send(mail.data);
-  logger.debug(body);
+  logger.debug(JSON.stringify(body));
 }
 
 module.exports = { sendEmail };

@@ -7,7 +7,7 @@ async function sendRequest(payload) {
   );
   const response = await axios(payload);
   const { data, status } = response;
-  logger.debug(`Response: ${response}`);
+  logger.debug(`Response: ${JSON.stringify(response)}`);
   const isString = typeof data === "string" || data instanceof String;
   if (!data || (isString && data.includes("ERROR")) || status > 300) {
     throw new Error(data);
