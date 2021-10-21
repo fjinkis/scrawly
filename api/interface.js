@@ -9,7 +9,7 @@ const interface = {
         // `--proxy-server=http=${randProxy}`,
         // "--incognito",
       ],
-      headless: false,
+      headless: true,
       slowMo: 100,
     });
     this.page = await this.browser.newPage();

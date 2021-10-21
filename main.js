@@ -1,9 +1,5 @@
 const { init } = require("./api/interface");
-const {
-  initiateRequest,
-  pollForRequestResults,
-  sleep,
-} = require("./api/utils");
+const { initiateRequest, pollForRequestResults } = require("./api/utils");
 const { captcha } = require("./config.json");
 const { sendEmail } = require("./api/mail");
 const { logger } = require("./api/logger");
@@ -26,44 +22,36 @@ async function getCaptchaImageinBase64(browser, url) {
 }
 
 async function mainProcess() {
-  let notFound = true;
   let interfaceHandler;
-  const RETRY_DELAY_IN_MIN = 10;
-  const MIN_IN_MILISECONDS = 60000;
-  while (notFound) {
-    try {
-      interfaceHandler = await init();
-      await interfaceHandler.visitPage(captcha.site);
-      const catchaUrl = await getCaptchaSelector(interfaceHandler);
+  try {
+    interfaceHandler = await init();
+    await interfaceHandler.visitPage(captcha.site);
+    const catchaUrl = await getCaptchaSelector(interfaceHandler);
 
-      logger.info("We are translating the captcha image to base64");
-      const base64Captcha = await getCaptchaImageinBase64(
-        interfaceHandler.browser,
-        catchaUrl
-      );
-      const requestId = await initiateRequest(captcha.key, base64Captcha);
-      logger.info(
-        `The captcha that we sent has the following ID: ${requestId}`
-      );
-      const response = await pollForRequestResults(captcha.key, requestId);
-      logger.info(`Captcha decoded: ${response}`);
-      await resolveCaptcha(interfaceHandler, response);
-      const result = await checkResult(interfaceHandler);
-      if (result) {
-        logger.info("We are sending the email to notify you!");
-        notFound = false;
-        await sendEmail();
-      }
-    } catch (err) {
-      handleErrors(err);
+    logger.info("We are translating the captcha image to base64");
+    const base64Captcha = await getCaptchaImageinBase64(
+      interfaceHandler.browser,
+      catchaUrl
+    );
+    const requestId = await initiateRequest(captcha.key, base64Captcha);
+    logger.info(`The captcha that we sent has the following ID: ${requestId}`);
+    const response = await pollForRequestResults(captcha.key, requestId);
+    logger.info(`Captcha decoded: ${response}`);
+    await resolveCaptcha(interfaceHandler, response);
+    const result = await checkResult(interfaceHandler);
+    if (result) {
+      logger.info("We are sending the email to notify you!");
+      notFound = false;
+      await sendEmail();
     }
-    if (interfaceHandler) interfaceHandler.close();
-    logger.info(`Going to sleep for ${RETRY_DELAY_IN_MIN} minutes!`);
-    await sleep(RETRY_DELAY_IN_MIN * MIN_IN_MILISECONDS);
+  } catch (err) {
+    handleErrors(err);
   }
+  if (interfaceHandler) interfaceHandler.close();
+  logger.info(`Ending the program. It will run in 10 minutes! Bye`);
 }
 
 (async () => {
   await mainProcess();
-  process.exit(1);
+  process.exit(0);
 })();
