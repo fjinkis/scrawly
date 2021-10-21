@@ -7,7 +7,6 @@ const {
   getCaptchaSelector,
   resolveCaptcha,
   checkResult,
-  handleErrors,
 } = require("./api/custom/polska");
 
 async function getCaptchaImageinBase64(browser, url) {
@@ -45,7 +44,7 @@ async function mainProcess() {
       await sendEmail();
     }
   } catch (err) {
-    handleErrors(err);
+    logger.error(`Error: ${err.message}`);
   }
   if (interfaceHandler) interfaceHandler.close();
   logger.info(`Ending the program. It will run in 10 minutes! Bye`);
