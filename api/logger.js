@@ -20,5 +20,6 @@ const logger = winston.createLogger({
     }),
   ],
 });
+logger.add(new winston.transports.Console());
 
 module.exports = { logger };
