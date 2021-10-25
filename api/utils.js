@@ -57,12 +57,14 @@ async function pollForRequestResults(
 
   return text;
 }
-async function initiateRequest(captchaApiKey, body) {
+async function initiateRequest(captchaApiKey, dataSiteKey, pageUrl) {
   const data = {
-    method: "base64",
+    method: "userrecaptcha",
     regsense: 1,
     key: captchaApiKey,
-    body,
+    googlekey: dataSiteKey,
+    pageurl: pageUrl,
+    invisible: 1,
     json: 1,
   };
   return await sendRequest({

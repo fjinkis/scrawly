@@ -26,6 +26,6 @@ yarn-error.log*
 .env.production.local
 
 # personal logic
-config.json
+config*.json
 **/custom
 /logs/*.log
